@@ -14,6 +14,9 @@ class SiameseNetworkDataset(Dataset):
         self.transform = transform
         self.should_invert = should_invert
 
+        np.random.seed(123)
+        random.seed(123)
+
         # Defines a set of random logos by index (for each epoch)
         self.random_indexes = np.random.randint(
             len(self.imageFolderDataset.imgs),

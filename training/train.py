@@ -11,7 +11,7 @@ from lossfunction.contrastive import ContrastiveLoss
 from loaders.datasetBatch import SiameseNetworkDataset  # Change this import to switch between dataset loaders
 #from loaders.dataseBatchAndNeg import SiameseNetworkDataset
 #from loaders.datasetRandom import SiameseNetworkDataset
-from models import SNresnet18, SNalexnet, SNakoch, SNtests  # Change this import to switch between models
+from models import SNresnet18, SNalexnet, SNdenseNet, SNinception, SNsqueeze, SNvgg, SNakoch, SNtests  # Change this import to switch between models
 from misc.misc import Utils
 from params.config import Config
 
@@ -51,48 +51,49 @@ class Trainer:
 
         counter = []
         loss_history = []
-        iteration_number = 0
 
         best_loss = 10**15  # Random big number (bigger than the initial loss)
         best_epoch = 0
         break_counter = 0  # break after 20 epochs without loss improvement
 
-
         for epoch in range(0, Config.train_number_epochs):
 
             average_epoch_loss = 0
-            count = 0
             for i, data in enumerate(train_dataloader, 0):
 
                 img0, img1, label = data
                 img0, img1, label = img0.cuda(), img1.cuda(), label.cuda()
 
+                # debug
                 #concatenated = torch.cat((data[0], data[1]), 0)
                 #Utils.imshow(torchvision.utils.make_grid(concatenated))
 
-                output1, output2, scores = net(img0, img1)
+                if Config.distanceLayer:
+                    scores = net(img0, img1)
+                else:
+                    output1, output2 = net(img0, img1)
+                    scores = F.pairwise_distance(output1, output2)
 
                 optimizer.zero_grad()
+                if Config.bceLoss:
+                    loss = F.binary_cross_entropy_with_logits(scores, label)  # Koch last layer only
+                else: # contrastive
+                    loss = criterion(scores, label)
 
-                #loss_contrastive = criterion(output1, output2, label)
-                loss_contrastive = F.binary_cross_entropy_with_logits(scores, label) # Koch last layer only
-
-                #print(loss_contrastive)
-
-                loss_contrastive.backward()
+                loss.backward()
 
                 optimizer.step()
 
-                average_epoch_loss += loss_contrastive.item()
-                count += 1
+                average_epoch_loss += loss.item()
 
-            iteration_number += 1
-            average_epoch_loss = average_epoch_loss / count
-            #print(count)
+            average_epoch_loss = average_epoch_loss / i
 
             print("Epoch number {}\n Current loss {}\n".format(epoch, average_epoch_loss))
-            counter.append(iteration_number)
-            loss_history.append(loss_contrastive.item())
+            counter.append(epoch)
+            loss_history.append(average_epoch_loss)
+
+            if epoch % 50 == 0:
+                torch.save(net, Config.best_model_path + str(epoch))
 
             if average_epoch_loss < best_loss:
                 best_loss = average_epoch_loss
@@ -116,10 +117,18 @@ class Trainer:
     def selectModel():
 
         if Config.model == "resnet":
-            return SNresnet18.SiameseNetwork(mode=Config.mode, pretrained=Config.pretrained).cuda()
+            return SNresnet18.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
         elif Config.model == "alexnet":
-            return SNalexnet.SiameseNetwork(mode=Config.mode, pretrained=Config.pretrained).cuda()
+            return SNalexnet.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
+        elif Config.model == "dense":
+            return SNdenseNet.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
+        elif Config.model == "inception":
+            return SNinception.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
+        elif Config.model == "vgg":
+            return SNvgg.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
+        elif Config.model == "squeeze":
+            return SNsqueeze.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
         elif Config.model == "koch":
-            return SNakoch.SiameseNetwork(mode=Config.mode, pretrained=Config.pretrained).cuda()
+            return SNakoch.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
         elif Config.model == "tests":
-            return SNtests.SiameseNetwork(mode=Config.mode, pretrained=Config.pretrained).cuda()
+            return SNtests.SiameseNetwork(pretrained=Config.pretrained).cuda()

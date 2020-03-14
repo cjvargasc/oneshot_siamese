@@ -12,7 +12,7 @@ class SiameseNetwork(nn.Module):
         self.lastLayer = lastLayer
         self.net_parameters = []  # list of parameters to be optimized
 
-        self.model_conv = torchvision.models.alexnet(pretrained=pretrained)
+        self.model_conv = torchvision.models.squeezenet1_0(pretrained=pretrained)
 
         if pretrained:
             # freeze all parameters in the model
@@ -20,10 +20,7 @@ class SiameseNetwork(nn.Module):
                 param.requires_grad = False
 
             #  Unfreeze model last layer
-            self.out_last = self.model_conv.classifier[6].out_features
-            # reset last layer?
-            # self.model_conv.classifier[6] = nn.Linear(4096, self.out_last)
-            for param in self.model_conv.classifier[6].parameters():
+            for param in self.model_conv.classifier[1].parameters():
                 param.requires_grad = True
                 self.net_parameters.append(param)
 
@@ -34,6 +31,7 @@ class SiameseNetwork(nn.Module):
             for param in self.extraL.parameters():
                 param.requires_grad = True
                 self.net_parameters.append(param)
+
 
     def forward_once(self, x):
         output = self.model_conv(x)
@@ -52,3 +50,4 @@ class SiameseNetwork(nn.Module):
             return scores
         else:
             return output1, output2
+

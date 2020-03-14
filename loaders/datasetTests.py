@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import torch
 import PIL.ImageOps
 from torch.utils.data import Dataset
@@ -12,39 +13,30 @@ class TestSiameseNetworkDataset(Dataset):
         self.imageFolderDataset = imageFolderDataset
         self.transform = transform
         self.should_invert = should_invert
-        self.index = 0
 
-        self.class_indexes = []  # stores the index to the first image of each class
-        self.current_class_index = 0
-        self.class_indexes.append(0)
+        #random.seed(123)
 
-        aux_index = 0
-        for sample in range(len(self.imageFolderDataset.imgs)):
-            if self.imageFolderDataset.imgs[sample][1] > aux_index:  # if next class
-                self.class_indexes.append(sample)
-                aux_index += 1
+    def __getitem__(self, index):
 
-        self.test_classes = aux_index
+        # Pick the same image twice
+        img0_tuple = self.imageFolderDataset.imgs[index // 2]
 
-    def __getitem__(self, idx):
+        # once with the logo and once without
+        should_get_same_class = index % 2
 
-        current = self.class_indexes[self.current_class_index]
-
-        if self.index >= len(self.imageFolderDataset.imgs):  # if index > dataset size
-            # if go to next class
-            self.current_class_index += 1
-            current = self.class_indexes[self.current_class_index]
-            self.index = 0
-
-        if self.index == current:
-            self.index += 1
-
-        img0_tuple = self.imageFolderDataset.imgs[current]
-        img1_tuple = self.imageFolderDataset.imgs[self.index]
-        self.index += 1
-
-        #print(current)
-        #print(self.index)
+        # Search for class by looping random indexes
+        if should_get_same_class:
+            while True:
+                # keep looping till the same class image is found
+                img1_tuple = random.choice(self.imageFolderDataset.imgs)
+                if img0_tuple[1] == img1_tuple[1]:
+                    break
+        else:
+            while True:
+                # keep looping till a different class image is found
+                img1_tuple = random.choice(self.imageFolderDataset.imgs)
+                if img0_tuple[1] != img1_tuple[1]:
+                    break
 
         img0 = Image.open(img0_tuple[0])
         img1 = Image.open(img1_tuple[0])
@@ -59,7 +51,8 @@ class TestSiameseNetworkDataset(Dataset):
             img0 = self.transform(img0)
             img1 = self.transform(img1)
 
-        return img0, img1, torch.from_numpy(np.array([int(img1_tuple[1] != img0_tuple[1])], dtype=np.float32))
+        return img0, img1, torch.from_numpy(np.array([int(img1_tuple[1] != img0_tuple[1])], dtype=np.float32)), img0_tuple[1]
 
     def __len__(self):
-        return (len(self.imageFolderDataset.imgs) * len(self.class_indexes)) - len(self.class_indexes)
+        #return 10 # Debug only
+        return len(self.imageFolderDataset.imgs) * 2

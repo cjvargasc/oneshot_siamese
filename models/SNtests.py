@@ -5,7 +5,7 @@ import torch.nn as nn
 
 
 class SiameseNetwork(nn.Module):
-    def __init__(self, mode=1, pretrained=True):
+    def __init__(self, pretrained=True):
 
         super(SiameseNetwork, self).__init__()
 
@@ -25,7 +25,7 @@ class SiameseNetwork(nn.Module):
         for param in self.model_conv.parameters():
             param.requires_grad = False
 
-        # Unfreeze model last layer
+        #  Unfreeze model last layer
         ''' vgg / alexnet '''
         ### Next line resets the layer
         self.out_last = self.model_conv.classifier[6].out_features
@@ -66,15 +66,13 @@ class SiameseNetwork(nn.Module):
         self.out_last = self.model_conv.fc.out_features
         '''
 
-        self.model_conv = self.model_conv.cuda()
-
         # Set architecture last layer (trained dist)
-        self.extraL = nn.Linear(self.out_last, 1)
-        for param in self.extraL.parameters():
-            param.requires_grad = True
-            self.net_parameters.append(param)
+        #self.extraL = nn.Linear(self.out_last, 1)
+        #for param in self.extraL.parameters():
+        #    param.requires_grad = True
+        #    self.net_parameters.append(param)
 
-        self.extraL = self.extraL.cuda()
+        #self.extraL = self.extraL.cuda()
 
     def forward_once(self, x):
         output = self.model_conv(x)
@@ -85,8 +83,8 @@ class SiameseNetwork(nn.Module):
         output2 = self.forward_once(input2)
 
         # compute l1 distance
-        diff = torch.abs(output1 - output2)
+        #diff = torch.abs(output1 - output2)
         # score the similarity between the 2 encodings
-        scores = self.extraL(diff)
+        #scores = self.extraL(diff)
 
-        return output1, output2, scores
+        return output1, output2#, scores

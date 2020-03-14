@@ -7,7 +7,7 @@ import torch.nn.functional as F
 """ Currently ignoring the 2nd fully copnected layer, which is the trained similarity metric """
 
 class SiameseNetwork(nn.Module):
-    def __init__(self, mode=1, pretrained=True):
+    def __init__(self, lastLayer=False, pretrained=True):
 
         super(SiameseNetwork, self).__init__()
 
@@ -33,7 +33,9 @@ class SiameseNetwork(nn.Module):
         self.conv3 = nn.Conv2d(128, 128, 4)
         self.conv4 = nn.Conv2d(128, 256, 4)
         self.fc1 = nn.Linear(30976, 4096)
-        self.fc2 = nn.Linear(4096, 1)
+
+        if self.lastLayer:
+            self.extraL = nn.Linear(4096, 1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -60,12 +62,13 @@ class SiameseNetwork(nn.Module):
         return out
 
     def forward(self, input1, input2):
-        output1 = self.sub_forward(input1)
-        output2 = self.sub_forward(input2)
+        output1 = self.forward_once(input1)
+        output2 = self.forward_once(input2)
 
-        # compute l1 distance
-        diff = torch.abs(output1 - output2)
-        # score the similarity between the 2 encodings
-        scores = self.fc2(diff)
-
-        return output1, output2, scores
+        if self.lastLayer:
+            # compute l1 distance (similarity) between the 2 encodings
+            diff = torch.abs(output1 - output2)
+            scores = self.extraL(diff)
+            return scores
+        else:
+            return output1, output2

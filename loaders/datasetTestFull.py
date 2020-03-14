@@ -19,6 +19,9 @@ class TestSiameseNetworkDataset(Dataset):
         self.current_class_index = 0
         self.class_indexes.append(0)
 
+        np.random.seed(123)
+        random.seed(123)
+
         aux_index = 0
         for sample in range(len(self.imageFolderDataset.imgs)):
             if self.imageFolderDataset.imgs[sample][1] > aux_index:  # if next class
