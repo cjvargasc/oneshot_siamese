@@ -8,10 +8,8 @@ import torchvision
 import torch.nn.functional as F
 
 from lossfunction.contrastive import ContrastiveLoss
-from loaders.datasetBatch import SiameseNetworkDataset  # Change this import to switch between dataset loaders
-#from loaders.dataseBatchAndNeg import SiameseNetworkDataset
-#from loaders.datasetRandom import SiameseNetworkDataset
-from models import SNresnet18, SNalexnet, SNdenseNet, SNinception, SNsqueeze, SNvgg, SNakoch, SNtests  # Change this import to switch between models
+from loaders.datasetBatch import SiameseNetworkDataset
+from models import SNresnet18, SNalexnet, SNdenseNet, SNinception, SNsqueeze, SNvgg, SNakoch, SNtests
 from misc.misc import Utils
 from params.config import Config
 
@@ -34,28 +32,29 @@ class Trainer:
 
         train_dataloader = DataLoader(siamese_dataset,
                                       shuffle=False,
-                                      num_workers=8, # 8
+                                      num_workers=8,
                                       batch_size=Config.train_batch_size)
 
         print("lr:     ", Config.lrate)
         print("batch:  ", Config.train_batch_size)
         print("epochs: ", Config.train_number_epochs)
 
-        net = Trainer.selectModel()  # Model dependant from import
+        net = Trainer.selectModel()  # Model defined in config
+
         net.train()
 
         criterion = ContrastiveLoss()
 
-        # optimizer = optim.Adam(net.parameters(),lr = 0.001 ) #0.0005
-        optimizer = optim.SGD(net.parameters(), lr=Config.lrate)
+        optimizer = optim.SGD(net.net_parameters, lr=Config.lrate)
 
         counter = []
         loss_history = []
 
-        best_loss = 10**15  # Random big number (bigger than the initial loss)
+        best_loss = 10**15
         best_epoch = 0
         break_counter = 0  # break after 20 epochs without loss improvement
 
+        # for epoch in range(0, Config.train_number_epochs):
         for epoch in range(0, Config.train_number_epochs):
 
             average_epoch_loss = 0
@@ -64,7 +63,7 @@ class Trainer:
                 img0, img1, label = data
                 img0, img1, label = img0.cuda(), img1.cuda(), label.cuda()
 
-                # debug
+                # Debug: Training data visualization
                 #concatenated = torch.cat((data[0], data[1]), 0)
                 #Utils.imshow(torchvision.utils.make_grid(concatenated))
 
@@ -75,8 +74,9 @@ class Trainer:
                     scores = F.pairwise_distance(output1, output2)
 
                 optimizer.zero_grad()
+
                 if Config.bceLoss:
-                    loss = F.binary_cross_entropy_with_logits(scores, label)  # Koch last layer only
+                    loss = F.binary_cross_entropy_with_logits(scores, label)
                 else: # contrastive
                     loss = criterion(scores, label)
 
@@ -132,3 +132,4 @@ class Trainer:
             return SNakoch.SiameseNetwork(lastLayer=Config.distanceLayer, pretrained=Config.pretrained).cuda()
         elif Config.model == "tests":
             return SNtests.SiameseNetwork(pretrained=Config.pretrained).cuda()
+

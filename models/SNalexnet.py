@@ -26,6 +26,12 @@ class SiameseNetwork(nn.Module):
             for param in self.model_conv.classifier[6].parameters():
                 param.requires_grad = True
                 self.net_parameters.append(param)
+                #torch.nn.init.xavier_uniform(param)
+        else:
+            for param in self.model_conv.parameters():
+                param.requires_grad = True
+                self.net_parameters.append(param)
+                #torch.nn.init.xavier_uniform(param)
 
         if self.lastLayer:
             self.out_last = self.model_conv.classifier[6].out_features
@@ -34,11 +40,12 @@ class SiameseNetwork(nn.Module):
             for param in self.extraL.parameters():
                 param.requires_grad = True
                 self.net_parameters.append(param)
+                #torch.nn.init.xavier_uniform(param)
 
     def forward_once(self, x):
         output = self.model_conv(x)
-        if self.lastLayer:
-            output = self.extraL(output)
+        #if self.lastLayer:
+        #    output = self.extraL(output)
         return output
 
     def forward(self, input1, input2):

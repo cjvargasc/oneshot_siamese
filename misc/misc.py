@@ -3,6 +3,7 @@ import numpy as np
 
 
 class Utils:
+    """ Visualization utilities """
 
     @staticmethod
     def imshow(img, text=None, should_save=False):
