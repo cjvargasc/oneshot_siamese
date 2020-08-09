@@ -29,7 +29,7 @@ denseNet | 0.67 | 0.27 | 0.70 | 0.71 | 0.69 | 0.76
 To be published as part of the ACM International Conference on Multimedia Retrieval (ICMR) 2020
 
 ## Examples
-(Showing the resulting similarity metric for each pair of images)
+(Showing the resulting dissimilarity metric for each pair of images)
 
 <img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">
 S = 0.014
