@@ -12,8 +12,8 @@ This code presents a Siamese Neural networks assessment for different embedded m
 * QMUL-OpenLogo dataset (https://qmul-openlogo.github.io/)
 
 ## Usage
-Use the misc/data_prep.py script to preprocess the QMUL-OpenLogo dataset (crop and data split) by defining the ```python openlogo_path```, ```python train_dir``` and ```python train_dir variables```.
-Set the parameters in the ```python params/config.py``` file defining the architecture to train and training parameters. Run the ```python main.py``` file to train/test de defined configuration.
+Use the misc/data_prep.py script to preprocess the QMUL-OpenLogo dataset (crop and data split) by defining the ```python openlogo_path```, ```python train_dir``` and ```python train_dir``` variables.
+Set the ```python params/config.py``` file to define the architecture to train and training parameters. Run the ```python main.py``` file to train/test the defined configuration.
 
 ## Results
 
