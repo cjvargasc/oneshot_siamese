@@ -27,3 +27,20 @@ denseNet | 0.67 | 0.27 | 0.70 | 0.71 | 0.69 | 0.76
 
 ## Reference
 To be published as part of the ACM International Conference on Multimedia Retrieval (ICMR) 2020
+
+## Examples
+
+<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">
+S = 0.014
+
+<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/toyota14.png" width="25%">
+S = 0.344
+
+<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/BMWimg000284.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/adidasimg000000.png" width="25%">
+S = 0.837
+
+<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/3m1.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/3m8.png" width="25%">
+S = 0.397
+
+<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/3m1.png" width="25%">-<img src="https://github.com/cjvargasc/oneshot_siamese/blob/master/imgs/abusimg000000.png" width="25%">
+S = 0.999
