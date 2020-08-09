@@ -6,6 +6,8 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import torchvision
 
+from PIL import Image
+
 from loaders.datasetTests import TestSiameseNetworkDataset
 from params.config import Config
 import math
@@ -178,3 +180,41 @@ class Tester:
         print(fn_str)
         print(TPR_str)
         print(FPR_str)
+
+    @staticmethod
+    def test_one():
+
+        print("Testing one pair")
+
+        query_path = "/home/mmv/Documents/3.datasets/openlogo/preproc/1/testing/toyota/BMWimg000284.png"
+        target_path = "/home/mmv/Documents/3.datasets/openlogo/preproc/1/testing/adidas1/adidasimg000000.png"
+
+        query = Image.open(query_path)
+        target = Image.open(target_path)
+
+        transform = transforms.Compose(
+            [transforms.Resize((Config.im_w, Config.im_h)),  # transforms.Grayscale(num_output_channels=3),
+             transforms.ToTensor()])
+
+        query = transform(query).unsqueeze(0)
+        target = transform(target).unsqueeze(0)
+
+        net = torch.load(Config.model_path).cuda()
+
+        net.eval()
+
+        with torch.no_grad():
+
+            if Config.distanceLayer:
+                distance = net(Variable(query).cuda(), Variable(target).cuda())
+                if Config.bceLoss:
+                    distance = torch.sigmoid(distance)
+
+            else:
+                output1, output2 = net(Variable(query).cuda(), Variable(target).cuda())
+                distance = torch.sigmoid(F.pairwise_distance(output1, output2))
+                if Config.bceLoss:
+                    distance = torch.sigmoid(distance)
+
+            print("S=", distance)
+

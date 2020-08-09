@@ -2,8 +2,8 @@
 class Config:
     """ Exec parameters """
     ## Dataset dirs
-    training_dir = "/home/mmv/Documents/3.datasets/openlogo/preproc/1/training/"
-    testing_dir = "/home/mmv/Documents/3.datasets/openlogo/preproc/1/testing/"
+    training_dir = "path to train dataset"
+    testing_dir = "path to test dataset"
 
     # Alexnet 224,224 following pytorch doc
     im_w = 224
