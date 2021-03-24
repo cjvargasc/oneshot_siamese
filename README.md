@@ -26,7 +26,7 @@ Resnet | 0.59 | 0.26 | 0.66 | 0.69 | 0.63 | 0.72
 denseNet | 0.67 | 0.27 | 0.70 | 0.71 | 0.69 | 0.76
 
 ## Reference
-To be published as part of the ACM International Conference on Multimedia Retrieval (ICMR) 2020
+https://dl.acm.org/doi/abs/10.1145/3372278.3390734
 
 ## Examples
 (Showing the resulting dissimilarity metric for each pair of images)
