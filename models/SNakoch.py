@@ -8,9 +8,12 @@ import torch.nn.functional as F
 
 class SiameseNetwork(nn.Module):
     def __init__(self, lastLayer=False, pretrained=True):
-
+    
         super(SiameseNetwork, self).__init__()
-
+        
+        self.lastLayer = lastLayer
+        self.pretrained = pretrained
+        
         #Input should be 105x105x1
         #self.conv1 = nn.Conv2d(1, 64, 10)
         #self.conv2 = nn.Conv2d(64, 128, 7)
@@ -62,8 +65,8 @@ class SiameseNetwork(nn.Module):
         return out
 
     def forward(self, input1, input2):
-        output1 = self.forward_once(input1)
-        output2 = self.forward_once(input2)
+        output1 = self.sub_forward(input1)
+        output2 = self.sub_forward(input2)
 
         if self.lastLayer:
             # compute l1 distance (similarity) between the 2 encodings
